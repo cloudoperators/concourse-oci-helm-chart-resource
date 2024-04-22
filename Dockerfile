@@ -4,7 +4,7 @@ WORKDIR /concourse-oci-helm-chart-resource
 COPY . .
 RUN make build
 
-FROM concourse/buildroot:git AS run
+FROM alpine AS run
 
 LABEL org.opencontainers.image.source = "https://github.com/cloudoperators/concourse-oci-helm-chart-resource"
 
