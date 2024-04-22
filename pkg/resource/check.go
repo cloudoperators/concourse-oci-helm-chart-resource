@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/pkg/errors"
-	"golang.org/x/mod/semver"
 	"oras.land/oras-go/v2/registry"
 )
 
@@ -32,21 +32,29 @@ func Check(ctx context.Context, request CheckRequest) (*CheckResponse, error) {
 	}
 
 	// Fetching repository tags
-	tags, err := registry.Tags(ctx, repo)
+	allTags, err := registry.Tags(ctx, repo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to fetch tags")
 	}
-	if len(tags) == 0 {
-		return nil, fmt.Errorf("no tags found for source %s", request.Source.String())
+
+	// Sorting tags.
+	var latestTag *semver.Version
+	for _, tag := range allTags {
+		v, err := semver.NewVersion(tag)
+		if err != nil {
+			return nil, err
+		}
+		if latestTag == nil || v.GreaterThan(latestTag) {
+			latestTag = v
+		}
+	}
+	if latestTag == nil {
+		return nil, fmt.Errorf("no latest tag found for source %s", request.Source.String())
 	}
 
-	// Sorting tags. The latest tag is the last one
-	semver.Sort(tags)
-	latestTag := tags[len(tags)-1]
-
-	digest, err := getDigestForTag(ctx, repo, latestTag)
+	digest, err := getDigestForTag(ctx, repo, latestTag.String())
 	if err != nil {
 		return nil, err
 	}
-	return &CheckResponse{{Tag: latestTag, Digest: digest}}, nil
+	return &CheckResponse{{Tag: latestTag.String(), Digest: digest}}, nil
 }

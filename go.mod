@@ -3,9 +3,9 @@ module github.com/cloudoperators/concourse-oci-helm-chart-resource
 go 1.22.2
 
 require (
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/opencontainers/image-spec v1.1.0
 	github.com/pkg/errors v0.9.1
-	golang.org/x/mod v0.11.0
 	oras.land/oras-go/v2 v2.5.0
 )
 
