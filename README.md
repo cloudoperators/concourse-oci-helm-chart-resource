@@ -1,40 +1,52 @@
-# SAP Repository Template
+Concourse resource for artifacts in an OCI registry
+===================================================
+[![REUSE status](https://api.reuse.software/badge/github.com/cloudoperators/concourse-oci-helm-chart-resource)](https://api.reuse.software/info/github.com/cloudoperators/concourse-oci-helm-chart-resource)
 
-Default templates for SAP open source repositories, including LICENSE, .reuse/dep5, Code of Conduct, etc... All repositories on github.com/SAP will be created based on this template.
+Fetches, verifies and publishes Helm Charts from a running OCI registry.
 
-## To-Do
+## Installation
 
-In case you are the maintainer of a new SAP open source project, these are the steps to do with the template files:
+Add a new resource type to your Concourse CI pipeline:
 
-- Check if the default license (Apache 2.0) also applies to your project. A license change should only be required in exceptional cases. If this is the case, please change the [license file](LICENSE).
-- Enter the correct metadata for the REUSE tool. See our [wiki page](https://wiki.one.int.sap/wiki/display/ospodocs/Using+the+Reuse+Tool+of+FSFE+for+Copyright+and+License+Information) for details how to do it. You can find an initial .reuse/dep5 file to build on. Please replace the parts inside the single angle quotation marks < > by the specific information for your repository and be sure to run the REUSE tool to validate that the metadata is correct.
-- Adjust the contribution guidelines (e.g. add coding style guidelines, pull request checklists, different license if needed etc.)
-- Add information about your project to this README (name, description, requirements etc). Especially take care for the <your-project> placeholders - those ones need to be replaced with your project name. See the sections below the horizontal line and [our guidelines on our wiki page](https://wiki.one.int.sap/wiki/pages/viewpage.action?pageId=3564976048#GuidelinesforGitHubHealthfiles(Readme,Contributing,CodeofConduct)-Readme.md) what is required and recommended.
-- Remove all content in this README above and including the horizontal line ;)
+```yaml
+resource_types:
+- name: oci-registry
+  type: docker-image
+  source:
+    repository: ghcr.io/cloudoperators/concourse-oci-helm-chart-resource
+    tag: f932b76 # Replace with the latest stable release.
+```
 
-***
+## Configuration
 
-# Our new open source project
+```
+resources:
+  - name: my.chart
+    type: oci-registry
+    source:
+      registry: ghcr.io/cloudoperators
+      repository: all-my-helm-charts
+      chart_name: my-chart
+```
 
-## About this project
+#### Authentication
 
-*Insert a short description of your project here...*
+The resource supports two ways of authenticating against the registry:
+* By default, the docker credential store is used.
+* Use the `auth_username` and `auth_password` parameters within the `source` block for basic authentication.
 
-## Requirements and Setup
+## Behavior
 
-*Insert a short description what is required to get your project running...*
+The resource implements the `check` and `in` action.
 
-## Support, Feedback, Contributing
+### check: Check for new versions of the Helm chart
 
-This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/SAP/<your-project>/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](CONTRIBUTING.md).
+Checks for new versions of the specified Helm chart. Returns the latest version of the Helm chart based on semantic versioning.
 
-## Security / Disclosure
-If you find any bug that may be a security problem, please follow our instructions at [in our security policy](https://github.com/SAP/<your-project>/security/policy) on how to report it. Please do not create GitHub issues for security-related doubts or problems.
+### in: Download the Helm chart and the metadata file
 
-## Code of Conduct
+Places the packaged Helm chart and the metadata file in the destination directory following the `<$>chart_name>-<chart_version>.{tgz|json}` naming convention.
 
-We as members, contributors, and leaders pledge to make participation in our community a harassment-free experience for everyone. By participating in this project, you agree to abide by its [Code of Conduct](https://github.com/SAP/.github/blob/main/CODE_OF_CONDUCT.md) at all times.
+### out
 
-## Licensing
-
-Copyright (20xx-)20xx SAP SE or an SAP affiliate company and <your-project> contributors. Please see our [LICENSE](LICENSE) for copyright and license information. Detailed information including third-party components and their licensing/copyright information is available [via the REUSE tool](https://api.reuse.software/info/github.com/SAP/<your-project>).
+* Currently not supported. Use `helm push` to push Helm charts to an OCI registry.
