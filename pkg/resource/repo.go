@@ -22,7 +22,7 @@ var allowedMediaTypes = []string{
 	"*/*",
 }
 
-func newRepositoryForSource(_ context.Context, s *Source) (*remote.Repository, error) {
+func newRepositoryForSource(_ context.Context, s Source) (*remote.Repository, error) {
 	repo, err := remote.NewRepository(s.String())
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to create repository from source %s", s.String())

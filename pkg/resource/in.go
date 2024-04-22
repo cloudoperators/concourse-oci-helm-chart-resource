@@ -24,20 +24,19 @@ const (
 
 type (
 	GetRequest struct {
-		Source  *Source `json:"source"`
-		Version string  `json:"version"`
-		Digest  string  `json:"digest,omitempty"`
+		Source  Source  `json:"source"`
+		Version Version `json:"version"`
 	}
 
 	GetResponse struct {
-		Version,
-		Digest string
+		Tag    string `json:"tag"`
+		Digest string `json:"digest"`
 	}
 )
 
 func (gr *GetRequest) Validate() error {
-	if gr.Version == "" {
-		return errors.New("version is required")
+	if gr.Version.Tag == "" {
+		return errors.New("tag is required")
 	}
 	return gr.Source.Validate()
 }
@@ -49,12 +48,12 @@ func Get(ctx context.Context, request GetRequest, outputDir string) (*GetRespons
 	}
 
 	store := memory.New()
-	desc, err := oras.Copy(ctx, repo, request.Version, store, request.Version, oras.DefaultCopyOptions)
+	desc, err := oras.Copy(ctx, repo, request.Version.Tag, store, request.Version.Tag, oras.DefaultCopyOptions)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to download chart %s:%s", request.Source.String(), request.Version)
+		return nil, errors.Wrapf(err, "failed to download chart %s:%s", request.Source.String(), request.Version.Tag)
 	}
 
-	filenameWithoutExtension := fmt.Sprintf("%s-%s", request.Source.ChartName, request.Version)
+	filenameWithoutExtension := fmt.Sprintf("%s-%s", request.Source.ChartName, request.Version.Tag)
 	manifestData, err := fetchFromStoreAndPersistFile(ctx, store, desc, path.Join(outputDir, filenameWithoutExtension+".json"))
 	if err != nil {
 		return nil, err
@@ -83,8 +82,8 @@ func Get(ctx context.Context, request GetRequest, outputDir string) (*GetRespons
 	}
 
 	return &GetResponse{
-		Version: request.Version,
-		Digest:  desc.Digest.String(),
+		Tag:    request.Version.Tag,
+		Digest: desc.Digest.String(),
 	}, nil
 }
 

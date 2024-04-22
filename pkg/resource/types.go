@@ -30,3 +30,8 @@ func (s *Source) Validate() error {
 func (s *Source) String() string {
 	return fmt.Sprintf("%s/%s/%s", s.Registry, s.Repository, s.ChartName)
 }
+
+type Version struct {
+	Tag    string `json:"tag"`
+	Digest string `json:"digest"`
+}

@@ -6,7 +6,7 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 	"os"
 
 	"github.com/cloudoperators/concourse-oci-helm-chart-resource/pkg/resource"
@@ -17,21 +17,21 @@ func main() {
 
 	decoder := json.NewDecoder(os.Stdin)
 	if err := decoder.Decode(&req); err != nil {
-		log.Fatalf("failed to unmarshal request: %s", err)
+		fmt.Fprintf(os.Stderr, "failed to unmarshal request: %s\n", err)
 	}
 
 	if len(os.Args) < 2 {
-		log.Fatalf("missing arguments")
+		fmt.Fprintln(os.Stderr, "missing arguments")
 	}
 	if err := req.Validate(); err != nil {
-		log.Fatalf("invalid source configuration: %s", err)
+		fmt.Fprintf(os.Stderr, "invalid source configuration: %s\n", err)
 	}
 	inputDir := os.Args[1]
 	response, err := resource.Put(context.Background(), req, inputDir)
 	if err != nil {
-		log.Fatalf("get failed: %s", err)
+		fmt.Fprintf(os.Stderr, "get failed: %s\n", err)
 	}
 	if err := json.NewEncoder(os.Stdout).Encode(response); err != nil {
-		log.Fatalf("failed to marshal response: %s", err)
+		fmt.Fprintf(os.Stderr, "failed to marshal response: %s\n", err)
 	}
 }

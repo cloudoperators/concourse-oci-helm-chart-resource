@@ -14,14 +14,11 @@ import (
 
 type (
 	CheckRequest struct {
-		Source *Source `json:"source"`
+		Source  Source   `json:"source"`
+		Version *Version `json:"version,omitempty"`
 	}
 
-	CheckResponse struct {
-		Source  *Source `json:"source"`
-		Version string  `json:"version"`
-		Digest  string  `json:"digest"`
-	}
+	CheckResponse []Version
 )
 
 func (cr *CheckRequest) Validate() error {
@@ -51,9 +48,5 @@ func Check(ctx context.Context, request CheckRequest) (*CheckResponse, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &CheckResponse{
-		Source:  request.Source,
-		Version: latestTag,
-		Digest:  digest,
-	}, nil
+	return &CheckResponse{{Tag: latestTag, Digest: digest}}, nil
 }
