@@ -16,8 +16,6 @@ func main() {
 	var req resource.PutRequest
 
 	decoder := json.NewDecoder(os.Stdin)
-	decoder.DisallowUnknownFields()
-
 	if err := decoder.Decode(&req); err != nil {
 		log.Fatalf("failed to unmarshal request: %s", err)
 	}
