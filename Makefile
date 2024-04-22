@@ -11,7 +11,7 @@ all: build
 build: build-check build-in build-out
 
 build-%:
-	go build -ldflags "-s -w" -o bin/$* ./cmd/$*/
+	CGO_ENABLED=0 go build -ldflags '-s -w -extldflags "-static"' -o bin/$* ./cmd/$*/
 
 .PHONY: docker-build
 docker-build:
