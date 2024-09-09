@@ -1,0 +1,8 @@
+name: Check & Fix License Header
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-license-eye:
+    uses: cloudoperators/common/.github/workflows/shared-license.yaml@main

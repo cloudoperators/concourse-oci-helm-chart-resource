@@ -10,11 +10,11 @@ env:
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
   # Comma separated list of platforms to build the image for.
-  PLATFORMS: linux/amd64
+  PLATFORMS: linux/amd64,linux/arm64
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [ default ]
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -35,6 +35,12 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=sha
+          labels: |
+            org.opencontainers.image.title=Concourse resource for artifacts in an OCI registry
+            org.opencontainers.image.description=Fetches, verifies and publishes Helm Charts from a running OCI registry.
+            org.opencontainers.image.url=https://github.com/cloudoperators/concourse-oci-helm-chart-resource
+            org.opencontainers.image.source=https://github.com/cloudoperators/concourse-oci-helm-chart-resource
+            org.opencontainers.image.documentation=https://github.com/cloudoperators/concourse-oci-helm-chart-resource/tree/main/README.md
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
@@ -43,3 +49,31 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
+  
+  vulnerability-scan:
+    permissions:
+      contents: read
+      packages: read
+      security-events: write
+    strategy:
+      fail-fast: false
+    name: Vulnerability Scan
+    needs: build
+    runs-on: [ default ]
+    steps:
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        if: success()
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          ignore-unfixed: true
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-results.sarif
