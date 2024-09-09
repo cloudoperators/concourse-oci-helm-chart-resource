@@ -1,12 +1,14 @@
-FROM golang:1.22 as build
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.22 as build
 
 WORKDIR /concourse-oci-helm-chart-resource
 COPY . .
 RUN make build
 
-FROM alpine AS run
+FROM --platform=${BUILDPLATFORM:-linux/amd64} alpine:3.20.3 AS run
 
-LABEL org.opencontainers.image.source = "https://github.com/cloudoperators/concourse-oci-helm-chart-resource"
+# upgrade all installed packages to fix potential CVEs in advance
+RUN apk upgrade --no-cache --no-progress \
+  && apk del --no-cache --no-progress apk-tools alpine-keys
 
 # Required by concourse resource. Copy explicitly.
 COPY --from=build /concourse-oci-helm-chart-resource/bin/check /opt/resource/check
