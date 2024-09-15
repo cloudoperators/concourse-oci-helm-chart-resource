@@ -62,11 +62,14 @@ jobs:
     needs: build
     runs-on: [ default ]
     steps:
+      - name: Set sha
+        id: vars
+        run: echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         if: success()
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.vars.outputs.sha_short }}
           ignore-unfixed: true
           format: 'sarif'
           output: 'trivy-results.sarif'
