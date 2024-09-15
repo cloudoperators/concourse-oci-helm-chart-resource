@@ -62,6 +62,8 @@ jobs:
     needs: build
     runs-on: [ default ]
     steps:
+      - name: checkout
+        uses: actions/checkout@v4
       - name: Set sha
         id: vars
         run: echo "sha_short=sha-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
