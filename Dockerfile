@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.22 as build
+FROM --platform=${BUILDPLATFORM:-linux/amd64} golang:1.23 as build
 
 WORKDIR /concourse-oci-helm-chart-resource
 COPY . .
