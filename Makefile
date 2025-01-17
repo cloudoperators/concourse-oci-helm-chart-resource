@@ -2,6 +2,19 @@
 TAG ?= $(shell git rev-parse --short HEAD)
 IMG ?= ghcr.io/cloudoperators/concourse-oci-helm-chart-resource:$(TAG)
 
+## Tool Binaries
+GOIMPORTS ?= $(LOCALBIN)/goimports
+GOLINT ?= $(LOCALBIN)/golangci-lint
+
+## Tool Versions
+GOLINT_VERSION ?= 1.63.4
+GINKGOLINTER_VERSION ?= 0.18.4
+
+## Location to install dependencies an GO binaries
+LOCALBIN ?= $(shell pwd)/bin
+$(LOCALBIN):
+	mkdir -p $(LOCALBIN)
+
 .PHONY: all
 all: build
 
@@ -20,3 +33,26 @@ docker-build:
 .PHONY: docker-push
 docker-push: docker-build
 	docker push ${IMG}
+
+.PHONY: goimports
+goimports: $(GOIMPORTS)
+$(GOIMPORTS): $(LOCALBIN)
+	GOBIN=$(LOCALBIN) go install golang.org/x/tools/cmd/goimports@latest
+
+.PHONY: fmt
+fmt: goimports
+	GOBIN=$(LOCALBIN) go fmt ./...
+	$(GOIMPORTS) -w -local github.com/cloudoperators/greenhouse .
+
+.PHONY: lint
+lint: golint
+	$(GOLINT) run -v --timeout 5m	
+
+.PHONY: check
+check: fmt lint
+
+.PHONY: golint
+golint: $(GOLINT)
+$(GOLINT): $(LOCALBIN)
+	GOBIN=$(LOCALBIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v$(GOLINT_VERSION)
+	GOBIN=$(LOCALBIN) go install github.com/nunnatsa/ginkgolinter/cmd/ginkgolinter@v$(GINKGOLINTER_VERSION)
