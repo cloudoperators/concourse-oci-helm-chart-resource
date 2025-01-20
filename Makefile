@@ -42,7 +42,7 @@ $(GOIMPORTS): $(LOCALBIN)
 .PHONY: fmt
 fmt: goimports
 	GOBIN=$(LOCALBIN) go fmt ./...
-	$(GOIMPORTS) -w -local github.com/cloudoperators/greenhouse .
+	$(GOIMPORTS) -w -local github.com/cloudoperators/concourse-oci-helm-chart-resource .
 
 .PHONY: lint
 lint: golint
