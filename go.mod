@@ -1,6 +1,6 @@
 module github.com/cloudoperators/concourse-oci-helm-chart-resource
 
-go 1.22.2
+go 1.23.4
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
@@ -11,5 +11,5 @@ require (
 
 require (
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
 )
