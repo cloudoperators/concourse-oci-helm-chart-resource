@@ -2,7 +2,7 @@
 Please ensure the PR title follows the conventional commit format:
 <type>(<scope>): description
 
-For a list of accepted types and scopes see the workflow documentation: https://github.com/cloudoperators/greenhouse/blob/main/.github/workflows/ci-pr-title.yaml
+For a list of accepted types and scopes see the workflow documentation: https://github.com/cloudoperators/concourse-oci-helm-chart-resource/blob/main/.github/workflows/ci-pr-title.yaml
 
 -->
 
