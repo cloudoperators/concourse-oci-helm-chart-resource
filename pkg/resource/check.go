@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"oras.land/oras-go/v2/registry"
 	"oras.land/oras-go/v2/registry/remote"
+	"os"
 	"slices"
 )
 
@@ -39,10 +40,7 @@ func Check(ctx context.Context, request CheckRequest) (*CheckResponse, error) {
 	}
 
 	// Sort tags by semver
-	sortedSemvers, err := sortBySemver(allTags)
-	if err != nil {
-		return nil, err
-	}
+	sortedSemvers := sortBySemver(allTags)
 
 	// chop the list at the index of the requested version, if there was one
 	if request.Version != nil {
@@ -76,19 +74,22 @@ func Check(ctx context.Context, request CheckRequest) (*CheckResponse, error) {
 	return &resolvedVersions, nil
 }
 
-func sortBySemver(allTags []string) ([]semver.Version, error) {
+func sortBySemver(allTags []string) []semver.Version {
 	allVersions := make([]semver.Version, len(allTags))
-	for i, tag := range allTags {
+	var j = 0
+	for _, tag := range allTags {
 		v, err := semver.NewVersion(tag)
 		if err != nil {
-			return nil, errors.Wrap(err, fmt.Sprintf("failed to parse semver in tag %q", tag))
+			fmt.Fprintf(os.Stderr, "skipping tag %q because it does not look like a semver\n", tag)
+		} else {
+			allVersions[j] = *v
+			j++
 		}
-		allVersions[i] = *v
 	}
 	slices.SortStableFunc(allVersions, func(i, j semver.Version) int {
 		return i.Compare(&j)
 	})
-	return allVersions, nil
+	return allVersions
 }
 
 func resolveImageDigests(ctx context.Context, sortedSemvers []semver.Version, repo *remote.Repository) (CheckResponse, error) {
