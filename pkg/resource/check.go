@@ -6,12 +6,13 @@ package resource
 import (
 	"context"
 	"fmt"
+	"os"
+	"slices"
+
 	"github.com/Masterminds/semver/v3"
 	"github.com/pkg/errors"
 	"oras.land/oras-go/v2/registry"
 	"oras.land/oras-go/v2/registry/remote"
-	"os"
-	"slices"
 )
 
 type (
