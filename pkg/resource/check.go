@@ -82,10 +82,10 @@ func sortBySemver(allTags []string) []semver.Version {
 		v, err := semver.NewVersion(tag)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "skipping tag %q because it does not look like a semver\n", tag)
-		} else {
-			allVersions[j] = *v
-			j++
+			continue
 		}
+		allVersions[j] = *v
+		j++
 	}
 	slices.SortStableFunc(allVersions, func(i, j semver.Version) int {
 		return i.Compare(&j)
