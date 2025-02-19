@@ -8,7 +8,7 @@ GOLINT ?= $(LOCALBIN)/golangci-lint
 
 ## Tool Versions
 GOLINT_VERSION ?= 1.64.5
-GINKGOLINTER_VERSION ?= 0.18.4
+GINKGOLINTER_VERSION ?= 0.19.1
 
 ## Location to install dependencies an GO binaries
 LOCALBIN ?= $(shell pwd)/bin
