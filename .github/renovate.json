@@ -12,8 +12,8 @@
     {
       "customType": "regex",
       "description": "Bump golangci-lint version in the Makefile",
-      "fileMatch": [
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "GOLINT_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
@@ -25,8 +25,8 @@
     {
       "customType": "regex",
       "description": "Bump ginkolinter version in the Makefile",
-      "fileMatch": [
-        "^Makefile$"
+      "managerFilePatterns": [
+        "/^Makefile$/"
       ],
       "matchStrings": [
         "GINKGOLINTER_VERSION\\s*\\?=\\s*(?<currentValue>.?(?:\\d+\\.){0,2}\\d+)"
