@@ -16,7 +16,7 @@ jobs:
         contents: read
     uses: cloudoperators/common/.github/workflows/shared-codeql.yaml@main
     with:
-      runs-on: "['default']"
+      runs-on: "['unbuntu-latest']"
       language: "['go']"
       go-check: true
       go-version: "['1.23']"

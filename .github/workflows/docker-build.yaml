@@ -20,7 +20,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: [ default ]
+    runs-on: [ ubuntu-latest ]
     continue-on-error: true
     permissions:
       contents: read
@@ -96,7 +96,7 @@ jobs:
       fail-fast: false
     name: Vulnerability Scan
     needs: build
-    runs-on: [ default ]
+    runs-on: [ ubuntu-latest ]
     steps:
       - name: checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
