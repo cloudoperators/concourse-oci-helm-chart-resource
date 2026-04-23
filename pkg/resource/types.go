@@ -13,6 +13,10 @@ type Source struct {
 	Repository string `json:"repository"`
 	ChartName  string `json:"chart_name"`
 
+	Tag           string `json:"tag,omitempty"`
+	TagRegex      string `json:"tag_regex,omitempty"`
+	CreatedAtSort bool   `json:"created_at_sort,omitempty"`
+
 	AuthUsername string `json:"auth_username,omitempty"`
 	AuthPassword string `json:"auth_password,omitempty"`
 }
@@ -26,6 +30,12 @@ func (s *Source) Validate() error {
 	}
 	if s.ChartName == "" {
 		return errors.New("chart_name cannot be empty")
+	}
+	if s.Tag != "" && s.TagRegex != "" {
+		return errors.New("tag and tag_regex are mutually exclusive")
+	}
+	if s.CreatedAtSort && s.TagRegex == "" {
+		return errors.New("created_at_sort requires tag_regex to be set")
 	}
 	return nil
 }
