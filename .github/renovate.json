@@ -37,14 +37,11 @@
     }
   ],
   "packageRules": [
-    {
-      "groupName": "github actions",
+   {
+      "groupName": "Github Actions updates",
+      "groupSlug": "github-actions",
       "matchManagers": [
         "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "major",
-        "minor"
       ],
       "extends": [
         "helpers:pinGitHubActionDigests"
