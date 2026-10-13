@@ -63,9 +63,11 @@ func getDigestForTag(ctx context.Context, repo *remote.Repository, tag string) (
 	return desc.Digest.String(), nil
 }
 
-// getCreatedAtForTag fetches the OCI image config for the given tag and returns
-// the creation timestamp recorded in it. Returns nil if the config has no
-// Created field set.
+// getCreatedAtForTag fetches the OCI manifest for the given tag and returns
+// the creation timestamp. It first checks manifest annotations
+// (org.opencontainers.image.created), which Helm charts set via `helm push`.
+// If that annotation is absent, it falls back to the image config's Created
+// field (set by container image builds).
 func getCreatedAtForTag(ctx context.Context, repo *remote.Repository, tag string) (*time.Time, error) {
 	// FetchReference goes directly to the manifests endpoint for the tag.
 	_, manifestReader, err := repo.FetchReference(ctx, tag)
@@ -79,7 +81,19 @@ func getCreatedAtForTag(ctx context.Context, repo *remote.Repository, tag string
 		return nil, errors.Wrapf(err, "failed to parse manifest for tag %q", tag)
 	}
 
-	// Fetch the config blob by digest via the blobs endpoint.
+	// Helm charts (pushed via `helm push`) set the creation time in manifest
+	// annotations rather than the config blob. Check there first.
+	if manifest.Annotations != nil {
+		if createdStr, ok := manifest.Annotations[ocispec.AnnotationCreated]; ok && createdStr != "" {
+			t, err := time.Parse(time.RFC3339, createdStr)
+			if err != nil {
+				return nil, errors.Wrapf(err, "tag %q has malformed %s annotation %q", tag, ocispec.AnnotationCreated, createdStr)
+			}
+			return &t, nil
+		}
+	}
+
+	// Fall back to the OCI image config's Created field (container images).
 	configReader, err := repo.Blobs().Fetch(ctx, manifest.Config)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to fetch config blob for tag %q", tag)
